@@ -53,8 +53,10 @@ export default function HomeScreen() {
 
         <ThemedView type="backgroundElement" style={styles.stepContainer}>
           <HabitCard title="Drink water" streak={1} isCompleted={true} />
-          <HabitCard title="Meditate" streak={4} />
+          <HabitCard title="Meditate" streak={4} priority="high" />
           <HabitCard title="Walk 10k steps" streak={10} isCompleted={true} />
+          <HabitCard title="Study Physics" streak={10} priority="low" />
+          <HabitCard title="Workout" streak={10} priority="medium" />
         </ThemedView>
 
         {Platform.OS === "web" && <WebBadge />}
