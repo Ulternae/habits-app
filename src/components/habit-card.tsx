@@ -33,7 +33,7 @@ const HabitCard = ({ title, streak, isCompleted, priority = "low" }: Props) => {
               android: "mode_heat",
               web: "mode_heat",
             }}
-            tintColor={isCompleted ? theme.textSecondary : "#D9480F"}
+            tintColor={isCompleted ? theme.textSecondary : theme.warning}
             size={24}
           />
         </View>

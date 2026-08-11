@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { HabitCard } from "@/components/habit-card";
 import { HabitDate } from "@/components/habit-date";
+import { ProfileHeader } from "@/components/profile-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
@@ -29,17 +30,13 @@ function getDevMenuHint() {
 }
 
 export default function HomeScreen() {
-  const name = 4;
-  const isPremium = false;
-  const totalMessages = 1;
-  const date = new Date();
-  const hour = date.getHours();
-  const greeting =
-    hour < 12 ? "Good day" : hour < 18 ? "Good afternoon" : "Good night";
+  const name = "Ulternae";
+  const role = "Developer";
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
+        <ProfileHeader name={name} role={role} />
         <ThemedView style={styles.heroSection}>
           <ThemedText type="title" style={styles.title}>
             HABTS
