@@ -2,8 +2,8 @@ import * as Device from "expo-device";
 import { Platform, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { HabitCard } from "@/components/habit-card";
-import { HabitDate } from "@/components/habit-date";
+import { AnimatedIcon } from "@/components/animated-icon";
+import { HintRow } from "@/components/hint-row";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
@@ -28,41 +28,38 @@ function getDevMenuHint() {
   );
 }
 
-export default function HomeScreen() {
-  const name = 4;
-  const isPremium = false;
-  const totalMessages = 1;
-  const date = new Date();
-  const hour = date.getHours();
-  const greeting =
-    hour < 12 ? "Good day" : hour < 18 ? "Good afternoon" : "Good night";
-
+const AboutScreen = () => {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
+          <AnimatedIcon />
           <ThemedText type="title" style={styles.title}>
-            HABTS
+            Welcome to&nbsp;Expo
           </ThemedText>
-          <ThemedText>Your app for generate habits</ThemedText>
         </ThemedView>
 
         <ThemedText type="code" style={styles.code}>
-          Quick Cards
+          get started
         </ThemedText>
 
         <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HabitCard title="Drink water" streak={1} isCompleted={true} />
-          <HabitCard title="Meditate" streak={4} />
-          <HabitCard title="Walk 10k steps" streak={10} isCompleted={true} />
+          <HintRow
+            title="Try editing"
+            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+          />
+          <HintRow title="Dev tools" hint={getDevMenuHint()} />
+          <HintRow
+            title="Fresh start"
+            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
+          />
         </ThemedView>
 
         {Platform.OS === "web" && <WebBadge />}
-        <HabitDate />
       </SafeAreaView>
     </ThemedView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -83,7 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
     paddingHorizontal: Spacing.four,
-    gap: Spacing.two,
+    gap: Spacing.four,
   },
   title: {
     textAlign: "center",
@@ -99,3 +96,5 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.four,
   },
 });
+
+export default AboutScreen;
