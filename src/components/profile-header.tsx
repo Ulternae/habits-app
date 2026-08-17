@@ -1,14 +1,15 @@
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { StyleSheet, View } from "react-native";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { ThemedText } from "./themed-text";
 
 type Props = {
   name: string;
   role: string;
+  style?: StyleProp<ViewStyle>;
 };
 
-const ProfileHeader = ({ name, role }: Props) => {
+const ProfileHeader = ({ name, role, style }: Props) => {
   const theme = useTheme();
   const initials =
     name
@@ -30,6 +31,7 @@ const ProfileHeader = ({ name, role }: Props) => {
           backgroundColor: theme.surface,
           borderColor: theme.border,
         },
+        style,
       ]}
     >
       <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
