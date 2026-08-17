@@ -8,6 +8,13 @@ import "@/global.css";
 import { Platform } from "react-native";
 
 export type Priority = "high" | "medium" | "low";
+export type Habit = {
+  id: number;
+  title: string;
+  streak: number;
+  isCompleted?: boolean;
+  priority?: Priority;
+};
 
 export const Colors = {
   light: {

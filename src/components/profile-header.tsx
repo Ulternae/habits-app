@@ -64,12 +64,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.three,
-    alignSelf: "stretch",
+    alignSelf: "flex-start",
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.two,
+    paddingRight: Spacing.four,
     borderWidth: 1,
     borderRadius: 999,
   },
+
   avatar: {
     width: 44,
     height: 44,
@@ -84,7 +86,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   identityBlock: {
-    flex: 1,
+    flexShrink: 1,
   },
   nameLabel: {
     fontSize: 18,

@@ -1,17 +1,10 @@
-import { Priority, Spacing } from "@/constants/theme";
+import { Habit, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
-type Props = {
-  title: string;
-  streak: number;
-  isCompleted?: boolean;
-  priority?: Priority;
-};
-
-const HabitCard = ({ title, streak, isCompleted, priority = "low" }: Props) => {
+const HabitCard = ({ title, streak, isCompleted, priority = "low" }: Habit) => {
   const theme = useTheme();
   const priorityAppearance = theme.priority[priority];
   const completedLabelStyle = isCompleted ? styles.completedLabel : undefined;

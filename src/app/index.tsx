@@ -1,4 +1,4 @@
-import { Platform, Pressable, StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -6,22 +6,41 @@ import {
 
 import { HabitCard } from "@/components/habit-card";
 import { HabitDate } from "@/components/habit-date";
+import { HabitNew } from "@/components/habit-new";
 import { ProfileHeader } from "@/components/profile-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
-import { useState } from "react";
+import {
+  BottomTabInset,
+  Habit,
+  MaxContentWidth,
+  Spacing,
+} from "@/constants/theme";
+import { useCallback, useState } from "react";
+
+const DEFAULT_HABITS: Habit[] = [
+  { id: 1, title: "Drink water", streak: 1, isCompleted: true },
+  { id: 2, title: "Meditate", streak: 4, priority: "high" },
+  { id: 3, title: "Walk 10k steps", streak: 10, isCompleted: true },
+  { id: 4, title: "Study Physics", streak: 10, priority: "low" },
+  { id: 5, title: "Workout", streak: 10, priority: "medium" },
+];
+
+interface HandleSubmit {
+  habit: Habit;
+}
 
 const HomeScreen = () => {
-  const [click, setClick] = useState(0);
-  const [text, setText] = useState("");
-  const [visible, setVisible] = useState(true);
-
   const name = "Ulternae";
   const role = "Developer";
 
   const insets = useSafeAreaInsets();
+  const [habits, setHabits] = useState(DEFAULT_HABITS);
+
+  const handleSubmit = useCallback(({ habit }: HandleSubmit) => {
+    setHabits((prev) => [...prev, habit]);
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
@@ -33,23 +52,24 @@ const HomeScreen = () => {
         />
         <ThemedView style={styles.heroSection}>
           <ThemedText type="title" style={styles.title}>
-            HABITS {click}
+            HABITS
           </ThemedText>
           <ThemedText>Your app for generate habits</ThemedText>
         </ThemedView>
 
-        <Pressable onPress={() => setClick((p) => p + 1)}>
-          <ThemedText type="code" style={styles.code}>
-            Quick Cards
-          </ThemedText>
-        </Pressable>
+        <HabitNew onSubmit={handleSubmit} />
 
         <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HabitCard title="Drink water" streak={1} isCompleted={true} />
-          <HabitCard title="Meditate" streak={4} priority="high" />
-          <HabitCard title="Walk 10k steps" streak={10} isCompleted={true} />
-          <HabitCard title="Study Physics" streak={10} priority="low" />
-          <HabitCard title="Workout" streak={10} priority="medium" />
+          {habits.map((habit) => (
+            <HabitCard
+              key={habit.id}
+              id={habit.id}
+              title={habit.title}
+              streak={habit.streak}
+              isCompleted={habit.isCompleted}
+              priority={habit.priority}
+            />
+          ))}
         </ThemedView>
 
         {Platform.OS === "web" && <WebBadge />}
