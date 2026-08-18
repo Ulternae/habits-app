@@ -17,6 +17,7 @@ import {
   MaxContentWidth,
   Spacing,
 } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 import { useCallback, useState } from "react";
 
 const DEFAULT_HABITS: Habit[] = [
@@ -31,15 +32,34 @@ interface HandleSubmit {
   habit: Habit;
 }
 
+interface HandleCompleted {
+  id: number;
+}
+
 const HomeScreen = () => {
   const name = "Ulternae";
   const role = "Developer";
+  const theme = useTheme();
 
   const insets = useSafeAreaInsets();
   const [habits, setHabits] = useState(DEFAULT_HABITS);
 
   const handleSubmit = useCallback(({ habit }: HandleSubmit) => {
     setHabits((prev) => [...prev, habit]);
+  }, []);
+
+  const handleCompleted = useCallback(({ id }: HandleCompleted) => {
+    setHabits((prev) =>
+      prev.map((h) =>
+        h.id === id
+          ? {
+              ...h,
+              isCompleted: !h.isCompleted,
+              streak: h.isCompleted ? h.streak - 1 : h.streak + 1,
+            }
+          : h,
+      ),
+    );
   }, []);
 
   return (
@@ -59,15 +79,20 @@ const HomeScreen = () => {
 
         <HabitNew onSubmit={handleSubmit} />
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
+        <ThemedView
+          type="backgroundElement"
+          style={[
+            styles.stepContainer,
+            {
+              borderColor: theme.border,
+            },
+          ]}
+        >
           {habits.map((habit) => (
             <HabitCard
               key={habit.id}
-              id={habit.id}
-              title={habit.title}
-              streak={habit.streak}
-              isCompleted={habit.isCompleted}
-              priority={habit.priority}
+              habit={habit}
+              onCompleted={handleCompleted}
             />
           ))}
         </ThemedView>
@@ -114,5 +139,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.four,
     borderRadius: Spacing.four,
+    borderWidth: 1,
   },
 });

@@ -1,17 +1,30 @@
 import { Habit, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { SymbolView } from "expo-symbols";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
-const HabitCard = ({ title, streak, isCompleted, priority = "low" }: Habit) => {
+interface HabitCard {
+  habit: Habit;
+  onCompleted: ({ id }: { id: number }) => void;
+}
+
+const HabitCard = ({ habit, onCompleted }: HabitCard) => {
+  const { title, streak, isCompleted, priority = "low" } = habit;
+
   const theme = useTheme();
   const priorityAppearance = theme.priority[priority];
   const completedLabelStyle = isCompleted ? styles.completedLabel : undefined;
   const labelThemeColor = isCompleted ? "textSecondary" : undefined;
 
   return (
-    <View style={styles.cardContainer}>
+    <Pressable
+      onPress={() => onCompleted({ id: habit.id })}
+      style={({ pressed }) => [
+        styles.cardContainer,
+        pressed && styles.cardPressed,
+      ]}
+    >
       <ThemedText themeColor={labelThemeColor} style={completedLabelStyle}>
         {title}
       </ThemedText>
@@ -52,7 +65,7 @@ const HabitCard = ({ title, streak, isCompleted, priority = "low" }: Habit) => {
           </ThemedText>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
@@ -62,6 +75,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: Spacing.three,
+  },
+  cardPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.99 }],
   },
   completedLabel: {
     textDecorationLine: "line-through",
