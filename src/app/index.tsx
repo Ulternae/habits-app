@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from "react-native";
+import { Platform, ScrollView, StyleSheet } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -26,6 +26,11 @@ const DEFAULT_HABITS: Habit[] = [
   { id: 3, title: "Walk 10k steps", streak: 10, isCompleted: true },
   { id: 4, title: "Study Physics", streak: 10, priority: "low" },
   { id: 5, title: "Workout", streak: 10, priority: "medium" },
+  { id: 6, title: "Drink water", streak: 1, isCompleted: true },
+  { id: 7, title: "Meditate", streak: 4, priority: "high" },
+  { id: 8, title: "Walk 10k steps", streak: 10, isCompleted: true },
+  { id: 9, title: "Study Physics", streak: 10, priority: "low" },
+  { id: 10, title: "Workout", streak: 10, priority: "medium" },
 ];
 
 interface HandleSubmit {
@@ -88,13 +93,19 @@ const HomeScreen = () => {
             },
           ]}
         >
-          {habits.map((habit) => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              onCompleted={handleCompleted}
-            />
-          ))}
+          <ScrollView
+            style={styles.habitsScroll}
+            contentContainerStyle={styles.habitsContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {habits.map((habit) => (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                onCompleted={handleCompleted}
+              />
+            ))}
+          </ScrollView>
         </ThemedView>
 
         {Platform.OS === "web" && <WebBadge />}
@@ -134,11 +145,20 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   stepContainer: {
-    gap: Spacing.three,
+    flex: 1,
+    minHeight: 0,
     alignSelf: "stretch",
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.four,
     borderRadius: Spacing.four,
     borderWidth: 1,
+  },
+  habitsScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  habitsContent: {
+    gap: Spacing.three,
+    paddingBottom: Spacing.one,
   },
 });
