@@ -1,4 +1,4 @@
-import { Platform, ScrollView, StyleSheet } from "react-native";
+import { FlatList, Platform, StyleSheet } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -93,19 +93,19 @@ const HomeScreen = () => {
             },
           ]}
         >
-          <ScrollView
-            style={styles.habitsScroll}
-            contentContainerStyle={styles.habitsContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {habits.map((habit) => (
+          <FlatList
+            data={habits}
+            keyExtractor={(habit) => String(habit.id)}
+            renderItem={({ item: habit }) => (
               <HabitCard
-                key={habit.id}
                 habit={habit}
                 onCompleted={handleCompleted}
               />
-            ))}
-          </ScrollView>
+            )}
+            style={styles.habitsScroll}
+            contentContainerStyle={styles.habitsContent}
+            showsVerticalScrollIndicator={false}
+          />
         </ThemedView>
 
         {Platform.OS === "web" && <WebBadge />}

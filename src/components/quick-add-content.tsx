@@ -1,7 +1,7 @@
 import { SuggestedHabit } from "@/constants/suggested";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 import { ThemedText } from "./themed-text";
 
 interface QuickAddContentProps {
@@ -14,20 +14,22 @@ const QuickAddContent = ({ suggestedHabits }: QuickAddContentProps) => {
   const data = suggestedHabits.filter((s) => s.isPicked);
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={({ item }) => <ThemedText>{`● ${item.name}`}</ThemedText>}
-        keyExtractor={(item) => item.id.toString()}
-        ListEmptyComponent={
-          <ThemedText
-            style={[styles.emptyState, { color: theme.textSecondary }]}
-          >
-            No selected habits
-          </ThemedText>
-        }
-      />
-    </View>
+    <FlatList
+      style={styles.container}
+      data={data}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <ThemedText>{`● ${item.name}`}</ThemedText>}
+      ListEmptyComponent={
+        <ThemedText style={[styles.emptyState, { color: theme.textSecondary }]}>
+          No selected habits
+        </ThemedText>
+      }
+      contentContainerStyle={[
+        styles.listContent,
+        data.length === 0 && styles.emptyList,
+      ]}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 
@@ -39,8 +41,16 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
     paddingHorizontal: Spacing.three,
   },
-  emptyState: {
+  listContent: {
+    gap: Spacing.two,
+    paddingBottom: Spacing.four,
+  },
+  emptyList: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  emptyState: {
+    textAlign: "center",
   },
 });

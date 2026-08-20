@@ -1,4 +1,4 @@
-import { Platform, ScrollView, StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { QuickAddChips } from "@/components/quick-add-chips";
@@ -34,6 +34,12 @@ const ExploreScreen = () => {
       paddingRight: insets.right,
       paddingBottom: insets.bottom,
     },
+    ios: {
+      paddingTop: insets.top,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+      paddingBottom: insets.bottom,
+    },
     web: {
       paddingTop: Spacing.six,
       paddingBottom: Spacing.four,
@@ -41,16 +47,12 @@ const ExploreScreen = () => {
   });
 
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}
-    >
-      <ThemedView style={styles.container}>
+    <ThemedView style={[styles.screen, { backgroundColor: theme.background }]}>
+      <ThemedView style={[styles.container, contentPlatformStyle]}>
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="subtitle">Explore</ThemedText>
           <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{"\n"}code to help you get started.
+            This starter app includes example code to help you get started.
           </ThemedText>
         </ThemedView>
         <QuickAddChips
@@ -59,22 +61,20 @@ const ExploreScreen = () => {
         />
         <QuickAddContent suggestedHabits={habitsPicked} />
       </ThemedView>
-    </ScrollView>
+    </ThemedView>
   );
 };
 
 export default ExploreScreen;
 const styles = StyleSheet.create({
-  scrollView: {
+  screen: {
     flex: 1,
   },
-  contentContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
   container: {
+    flex: 1,
+    width: "100%",
     maxWidth: MaxContentWidth,
-    flexGrow: 1,
+    alignSelf: "center",
   },
   titleContainer: {
     gap: Spacing.three,
