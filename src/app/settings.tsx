@@ -1,12 +1,20 @@
 import { SymbolView } from "expo-symbols";
 import type { ComponentProps } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useHabitsStore } from "@/store/habits.store";
 
 type SymbolName = ComponentProps<typeof SymbolView>["name"];
 
@@ -64,14 +72,48 @@ function SettingRow({
 
 const SettingsScreen = () => {
   const theme = useTheme();
+  const safeAreaInsets = useSafeAreaInsets();
+  const habits = useHabitsStore((state) => state.habits);
+  const removeAllHabits = useHabitsStore((state) => state.removeAllHabits);
+
+  const contentPlatformStyle = Platform.select({
+    android: {
+      paddingTop: safeAreaInsets.top + Spacing.five,
+      paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.five,
+    },
+    ios: {
+      paddingTop: safeAreaInsets.top + Spacing.five,
+      paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.five,
+    },
+    web: {
+      paddingTop: Spacing.five,
+      paddingBottom: Spacing.five,
+    },
+  });
+
+  const handleClearHabits = () => {
+    if (habits.length === 0) return;
+
+    Alert.alert(
+      "Clear all habits?",
+      "This will permanently remove all of your saved habits.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear all",
+          style: "destructive",
+          onPress: removeAllHabits,
+        },
+      ],
+    );
+  };
 
   return (
     <ThemedView style={styles.screen}>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.content}
-        >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, contentPlatformStyle]}
+      >
           <View style={styles.header}>
             <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
               <ThemedText style={[styles.avatarText, { color: theme.onPrimary }]}>
@@ -97,7 +139,8 @@ const SettingsScreen = () => {
               </ThemedText>
               <ThemedText style={styles.profileName}>Ulternae</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                Developer · 5 active habits
+                Developer · {habits.length} active habit
+                {habits.length === 1 ? "" : "s"}
               </ThemedText>
             </View>
 
@@ -161,11 +204,45 @@ const SettingsScreen = () => {
             </ThemedView>
           </View>
 
+          <View style={styles.section}>
+            <ThemedText type="smallBold" themeColor="muted">
+              DATA
+            </ThemedText>
+            <ThemedView
+              type="backgroundElement"
+              style={[styles.dangerCard, { borderColor: theme.border }]}
+            >
+              <View style={styles.dangerCopy}>
+                <ThemedText style={styles.settingLabel}>Clear all habits</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  Remove every habit saved in this app.
+                </ThemedText>
+              </View>
+
+              <Pressable
+                onPress={handleClearHabits}
+                disabled={habits.length === 0}
+                accessibilityRole="button"
+                accessibilityLabel="Clear all habits"
+                accessibilityState={{ disabled: habits.length === 0 }}
+                style={({ pressed }) => [
+                  styles.clearButton,
+                  { backgroundColor: theme.danger },
+                  habits.length === 0 && styles.clearButtonDisabled,
+                  pressed && styles.clearButtonPressed,
+                ]}
+              >
+                <ThemedText type="smallBold" style={{ color: "#FFFFFF" }}>
+                  Clear
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
+          </View>
+
           <ThemedText type="small" themeColor="muted" style={styles.footerNote}>
-            Settings are a visual preview. Controls will be enabled in a future update.
+            Most settings are a visual preview. More controls will be enabled in a future update.
           </ThemedText>
-        </ScrollView>
-      </SafeAreaView>
+      </ScrollView>
     </ThemedView>
   );
 };
@@ -174,18 +251,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  safeArea: {
-    flex: 1,
+  content: {
+    flexGrow: 1,
     width: "100%",
     maxWidth: MaxContentWidth,
     alignSelf: "center",
-    paddingBottom: BottomTabInset + Spacing.three,
-  },
-  content: {
     gap: Spacing.four,
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.five,
-    paddingBottom: Spacing.five,
   },
   header: {
     flexDirection: "row",
@@ -236,6 +308,32 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.four,
     borderWidth: 1,
     overflow: "hidden",
+  },
+  dangerCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.three,
+    padding: Spacing.three,
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+  },
+  dangerCopy: {
+    flex: 1,
+    gap: Spacing.half,
+  },
+  clearButton: {
+    minWidth: 76,
+    minHeight: 40,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Spacing.two,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  clearButtonDisabled: {
+    opacity: 0.45,
+  },
+  clearButtonPressed: {
+    opacity: 0.8,
   },
   settingRow: {
     flexDirection: "row",
