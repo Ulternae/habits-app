@@ -52,7 +52,7 @@ const ExploreScreen = () => {
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="subtitle">Explore</ThemedText>
           <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example code to help you get started.
+            {"This starter app includes example code to help"}
           </ThemedText>
         </ThemedView>
         <QuickAddChips
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     maxWidth: MaxContentWidth,
-    alignSelf: "center",
   },
   titleContainer: {
     gap: Spacing.three,

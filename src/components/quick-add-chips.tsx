@@ -18,6 +18,7 @@ const QuickAddChips = ({
   return (
     <ScrollView
       horizontal
+      style={styles.scrollView}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
     >
@@ -62,14 +63,18 @@ const QuickAddChips = ({
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 0,
+  },
+
   container: {
     gap: Spacing.three,
     paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.four,
   },
 
   shadowContainer: {
     borderRadius: Spacing.four,
-
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -77,7 +82,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.08,
     shadowRadius: 2,
-
     elevation: 1,
   },
 
@@ -89,7 +93,6 @@ const styles = StyleSheet.create({
   item: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-
     borderRadius: Spacing.four,
     borderWidth: 1,
   },
@@ -104,3 +107,4 @@ const styles = StyleSheet.create({
 });
 
 export { QuickAddChips };
+

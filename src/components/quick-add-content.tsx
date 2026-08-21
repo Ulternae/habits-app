@@ -38,17 +38,18 @@ export { QuickAddContent };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Spacing.three,
-    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.four,
   },
   listContent: {
     gap: Spacing.two,
     paddingBottom: Spacing.four,
   },
   emptyList: {
+    paddingVertical: Spacing.four,
     flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
   },
   emptyState: {
     textAlign: "center",
