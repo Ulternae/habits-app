@@ -1,23 +1,98 @@
-import { Platform, StyleSheet } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { QuickAddChips } from "@/components/quick-add-chips";
 import { QuickAddContent } from "@/components/quick-add-content";
+import { QuickCurrentContent } from "@/components/quick-current-content";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { SUGGESTED_HABITS, SuggestedHabit } from "@/constants/suggested";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { useState } from "react";
+import { useHabitsStore } from "@/store/habits.store";
+import { useEffect, useMemo, useState } from "react";
 
 const ExploreScreen = () => {
+  const currentHabits = useHabitsStore((state) => state.habits);
+  const addHabit = useHabitsStore((state) => state.addHabit);
+  const removeHabit = useHabitsStore((state) => state.removeHabit);
+
+  const currentHabitNames = useMemo(
+    () =>
+      new Set(
+        currentHabits.map((habit) => habit.title.trim().toLowerCase()),
+      ),
+    [currentHabits],
+  );
+
+  const habitsPickedCurrent = useMemo(() => {
+    return SUGGESTED_HABITS.map((habit) => ({
+      ...habit,
+      isPicked: currentHabitNames.has(habit.name.trim().toLowerCase()),
+    }));
+  }, [currentHabitNames]);
+
   const [habitsPicked, setHabitsPicked] =
     useState<SuggestedHabit[]>(SUGGESTED_HABITS);
+  const [hasEditedSuggestions, setHasEditedSuggestions] = useState(false);
+
+  useEffect(() => {
+    if (!hasEditedSuggestions) {
+      setHabitsPicked(habitsPickedCurrent);
+    }
+  }, [habitsPickedCurrent, hasEditedSuggestions]);
 
   const togglePick = ({ id }: Pick<SuggestedHabit, "id">) => {
+    setHasEditedSuggestions(true);
     setHabitsPicked((prev) =>
       prev.map((h) => (h.id === id ? { ...h, isPicked: !h.isPicked } : h)),
     );
+  };
+
+  const pendingChanges = useMemo(() => {
+    if (!hasEditedSuggestions) {
+      return { additions: [], removals: [] };
+    }
+
+    const pickedByName = new Map(
+      habitsPicked.map((habit) => [habit.name.trim().toLowerCase(), habit]),
+    );
+
+    return {
+      additions: habitsPicked.filter(
+        (habit) =>
+          habit.isPicked &&
+          !currentHabitNames.has(habit.name.trim().toLowerCase()),
+      ),
+      removals: currentHabits.filter((habit) => {
+        const suggestion = pickedByName.get(habit.title.trim().toLowerCase());
+        return suggestion && !suggestion.isPicked;
+      }),
+    };
+  }, [currentHabitNames, currentHabits, habitsPicked, hasEditedSuggestions]);
+
+  const pendingChangesCount =
+    pendingChanges.additions.length + pendingChanges.removals.length;
+
+  const handleUpdate = () => {
+    const timestamp = Date.now();
+
+    pendingChanges.removals.forEach((habit) => {
+      removeHabit({ id: habit.id });
+    });
+
+    pendingChanges.additions.forEach((suggestion, index) => {
+      addHabit({
+        habit: {
+          id: timestamp + index,
+          title: suggestion.name,
+          streak: 0,
+          priority: "medium",
+        },
+      });
+    });
+
+    setHasEditedSuggestions(false);
   };
 
   const safeAreaInsets = useSafeAreaInsets();
@@ -48,19 +123,58 @@ const ExploreScreen = () => {
 
   return (
     <ThemedView style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ThemedView style={[styles.container, contentPlatformStyle]}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.container, contentPlatformStyle]}
+      >
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="subtitle">Explore</ThemedText>
           <ThemedText style={styles.centerText} themeColor="textSecondary">
-            {"This starter app includes example code to help"}
+            See what is already part of your routine and what you can add next.
           </ThemedText>
         </ThemedView>
+
+        <View style={styles.section}>
+          <ThemedText type="smallBold" themeColor="muted">
+            CURRENT HABITS
+          </ThemedText>
+          <QuickCurrentContent suggestedHabits={habitsPickedCurrent} />
+        </View>
+
+        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+        <View style={styles.section}>
+          <ThemedText type="smallBold" themeColor="muted">
+            SUGGESTED HABITS
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            Choose which suggested habits should belong to your routine.
+          </ThemedText>
+        </View>
+
         <QuickAddChips
           suggestedHabits={habitsPicked}
           onTogglePick={togglePick}
         />
         <QuickAddContent suggestedHabits={habitsPicked} />
-      </ThemedView>
+
+        {pendingChangesCount > 0 && (
+          <Pressable
+            onPress={handleUpdate}
+            accessibilityRole="button"
+            accessibilityLabel="Update habits"
+            style={({ pressed }) => [
+              styles.updateButton,
+              { backgroundColor: theme.primary },
+              pressed && styles.updateButtonPressed,
+            ]}
+          >
+            <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
+              Update habits ({pendingChangesCount})
+            </ThemedText>
+          </Pressable>
+        )}
+      </ScrollView>
     </ThemedView>
   );
 };
@@ -71,9 +185,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     width: "100%",
     maxWidth: MaxContentWidth,
+    alignSelf: "center",
+    gap: Spacing.four,
   },
   titleContainer: {
     gap: Spacing.three,
@@ -85,35 +201,24 @@ const styles = StyleSheet.create({
   centerText: {
     textAlign: "center",
   },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: "row",
+  section: {
+    gap: Spacing.two,
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
+  },
+  divider: {
+    height: 1,
+    marginHorizontal: Spacing.four,
+  },
+  updateButton: {
+    alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.one,
-    alignItems: "center",
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: "center",
-  },
-  imageTutorial: {
-    width: "100%",
-    aspectRatio: 296 / 171,
+    minHeight: 48,
+    marginHorizontal: Spacing.four,
     borderRadius: Spacing.three,
-    marginTop: Spacing.two,
+    paddingHorizontal: Spacing.four,
   },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
+  updateButtonPressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.99 }],
   },
 });

@@ -1,7 +1,7 @@
 import { SuggestedHabit } from "@/constants/suggested";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { FlatList, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
 interface QuickAddContentProps {
@@ -11,25 +11,25 @@ interface QuickAddContentProps {
 const QuickAddContent = ({ suggestedHabits }: QuickAddContentProps) => {
   const theme = useTheme();
 
-  const data = suggestedHabits.filter((s) => s.isPicked);
+  const data = suggestedHabits.filter((habit) => habit.isPicked);
+
+  if (data.length === 0) {
+    return (
+      <ThemedText type="small" themeColor="textSecondary">
+        No new habits selected.
+      </ThemedText>
+    );
+  }
 
   return (
-    <FlatList
-      style={styles.container}
-      data={data}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => <ThemedText>{`● ${item.name}`}</ThemedText>}
-      ListEmptyComponent={
-        <ThemedText style={[styles.emptyState, { color: theme.textSecondary }]}>
-          No selected habits
-        </ThemedText>
-      }
-      contentContainerStyle={[
-        styles.listContent,
-        data.length === 0 && styles.emptyList,
-      ]}
-      showsVerticalScrollIndicator={false}
-    />
+    <View style={styles.container}>
+      {data.map((habit) => (
+        <View key={habit.id} style={styles.item}>
+          <View style={[styles.dot, { backgroundColor: theme.primary }]} />
+          <ThemedText>{habit.name}</ThemedText>
+        </View>
+      ))}
+    </View>
   );
 };
 
@@ -37,21 +37,17 @@ export { QuickAddContent };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingVertical: Spacing.three,
+    gap: Spacing.two,
     paddingHorizontal: Spacing.four,
   },
-  listContent: {
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.two,
-    paddingBottom: Spacing.four,
   },
-  emptyList: {
-    paddingVertical: Spacing.four,
-    flexGrow: 1,
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-  },
-  emptyState: {
-    textAlign: "center",
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
 });
