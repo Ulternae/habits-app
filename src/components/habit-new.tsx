@@ -1,17 +1,16 @@
 import type { Habit } from "@/constants/theme";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useHabitsStore } from "@/store/habits.store";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 
-interface HabitNewProps {
-  onSubmit: ({ habit }: { habit: Habit }) => void;
-}
-
-const HabitNew = ({ onSubmit }: HabitNewProps) => {
+const HabitNew = () => {
   const theme = useTheme();
   const [text, setText] = useState("");
+  const addHabit = useHabitsStore((state) => state.addHabit);
+
   const canSubmit = text.trim().length > 0;
 
   const handleSubmit = () => {
@@ -24,7 +23,7 @@ const HabitNew = ({ onSubmit }: HabitNewProps) => {
       streak: 0,
       priority: "medium",
     };
-    onSubmit({ habit });
+    addHabit({ habit });
     setText("");
   };
 

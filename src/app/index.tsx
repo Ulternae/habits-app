@@ -1,4 +1,5 @@
-import { FlatList, Platform, StyleSheet } from "react-native";
+import { SymbolView } from "expo-symbols";
+import { FlatList, Platform, StyleSheet, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -13,29 +14,11 @@ import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
 import {
   BottomTabInset,
-  Habit,
   MaxContentWidth,
   Spacing,
 } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { loadHabits, saveHabits } from "@/storage/habits-storage";
-import { useCallback, useEffect, useState } from "react";
-
-const DEFAULT_HABITS: Habit[] = [
-  { id: 1, title: "Drink water", streak: 1, isCompleted: true },
-  { id: 2, title: "Meditate", streak: 4, priority: "high" },
-  { id: 3, title: "Walk 10k steps", streak: 10, isCompleted: true },
-  { id: 4, title: "Study Physics", streak: 10, priority: "low" },
-  { id: 5, title: "Workout", streak: 10, priority: "medium" },
-];
-
-interface HandleSubmit {
-  habit: Habit;
-}
-
-interface HandleCompleted {
-  id: number;
-}
+import { useHabitsStore } from "@/store/habits.store";
 
 const HomeScreen = () => {
   const name = "Ulternae";
@@ -43,62 +26,7 @@ const HomeScreen = () => {
   const theme = useTheme();
 
   const insets = useSafeAreaInsets();
-  const [habits, setHabits] = useState(DEFAULT_HABITS);
-  const [isHydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const hydrateHabits = async () => {
-      try {
-        const saveHabits = await loadHabits();
-
-        if (!isMounted) return;
-
-        if (saveHabits) {
-          setHabits(saveHabits);
-        }
-      } catch {
-        console.error("Error loading habits from storage");
-      } finally {
-        if (isMounted) {
-          setHydrated(true);
-        }
-      }
-    };
-
-    hydrateHabits();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    saveHabits({ habits }).catch((error) => {
-      console.error("Error saving habits to storage:", error);
-    });
-  }, [habits, isHydrated]);
-
-  const handleSubmit = useCallback(({ habit }: HandleSubmit) => {
-    setHabits((prev) => [...prev, habit]);
-  }, []);
-
-  const handleCompleted = useCallback(({ id }: HandleCompleted) => {
-    setHabits((prev) =>
-      prev.map((h) =>
-        h.id === id
-          ? {
-              ...h,
-              isCompleted: !h.isCompleted,
-              streak: h.isCompleted ? h.streak - 1 : h.streak + 1,
-            }
-          : h,
-      ),
-    );
-  }, []);
+  const habits = useHabitsStore((state) => state.habits);
 
   return (
     <ThemedView style={styles.container}>
@@ -115,7 +43,7 @@ const HomeScreen = () => {
           <ThemedText>Your app for generate habits</ThemedText>
         </ThemedView>
 
-        <HabitNew onSubmit={handleSubmit} />
+        <HabitNew />
 
         <ThemedView
           type="backgroundElement"
@@ -129,12 +57,35 @@ const HomeScreen = () => {
           <FlatList
             data={habits}
             keyExtractor={(habit) => String(habit.id)}
-            renderItem={({ item: habit }) => (
-              <HabitCard habit={habit} onCompleted={handleCompleted} />
-            )}
+            renderItem={({ item: habit }) => <HabitCard habit={habit} />}
             style={styles.habitsScroll}
-            contentContainerStyle={styles.habitsContent}
+            contentContainerStyle={[
+              styles.habitsContent,
+              habits.length === 0 && styles.habitsEmptyContent,
+            ]}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <SymbolView
+                  name={{
+                    ios: "checkmark.circle",
+                    android: "check_circle",
+                    web: "check_circle",
+                  }}
+                  tintColor={theme.primary}
+                  size={36}
+                />
+                <ThemedText type="subtitle" style={styles.emptyTitle}>
+                  No habits yet
+                </ThemedText>
+                <ThemedText
+                  themeColor="textSecondary"
+                  style={styles.emptyDescription}
+                >
+                  Add your first habit above to start building your routine.
+                </ThemedText>
+              </View>
+            }
           />
         </ThemedView>
 
@@ -171,9 +122,6 @@ const styles = StyleSheet.create({
   title: {
     textAlign: "center",
   },
-  code: {
-    textTransform: "uppercase",
-  },
   stepContainer: {
     flex: 1,
     minHeight: 0,
@@ -190,5 +138,24 @@ const styles = StyleSheet.create({
   habitsContent: {
     gap: Spacing.three,
     paddingBottom: Spacing.one,
+  },
+  habitsEmptyContent: {
+    flexGrow: 1,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.four,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    lineHeight: 30,
+    textAlign: "center",
+  },
+  emptyDescription: {
+    maxWidth: 280,
+    textAlign: "center",
   },
 });

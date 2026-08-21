@@ -1,16 +1,17 @@
 import { Habit, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useHabitsStore } from "@/store/habits.store";
 import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
 interface HabitCard {
   habit: Habit;
-  onCompleted: ({ id }: { id: number }) => void;
 }
 
-const HabitCard = ({ habit, onCompleted }: HabitCard) => {
+const HabitCard = ({ habit }: HabitCard) => {
   const { title, streak, isCompleted, priority = "low" } = habit;
+  const toggleHabit = useHabitsStore((state) => state.toggleHabit);
 
   const theme = useTheme();
   const priorityAppearance = theme.priority[priority];
@@ -19,7 +20,7 @@ const HabitCard = ({ habit, onCompleted }: HabitCard) => {
 
   return (
     <Pressable
-      onPress={() => onCompleted({ id: habit.id })}
+      onPress={() => toggleHabit({ id: habit.id })}
       style={({ pressed }) => [
         styles.cardContainer,
         pressed && styles.cardPressed,
@@ -117,3 +118,4 @@ const styles = StyleSheet.create({
 });
 
 export { HabitCard };
+
