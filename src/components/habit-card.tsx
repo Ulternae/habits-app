@@ -7,9 +7,10 @@ import { ThemedText } from "./themed-text";
 
 interface HabitCard {
   habit: Habit;
+  onToggle?: () => void;
 }
 
-const HabitCard = ({ habit }: HabitCard) => {
+const HabitCard = ({ habit, onToggle }: HabitCard) => {
   const { title, streak, isCompleted, priority = "low" } = habit;
   const toggleHabit = useHabitsStore((state) => state.toggleHabit);
 
@@ -20,7 +21,10 @@ const HabitCard = ({ habit }: HabitCard) => {
 
   return (
     <Pressable
-      onPress={() => toggleHabit({ id: habit.id })}
+      onPress={() => {
+        toggleHabit({ id: habit.id });
+        onToggle?.();
+      }}
       style={({ pressed }) => [
         styles.cardContainer,
         pressed && styles.cardPressed,

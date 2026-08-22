@@ -1,10 +1,3 @@
-import { SymbolView } from "expo-symbols";
-import { FlatList, Platform, StyleSheet, View } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-
 import { HabitCard } from "@/components/habit-card";
 import { HabitDate } from "@/components/habit-date";
 import { HabitNew } from "@/components/habit-new";
@@ -12,13 +5,17 @@ import { ProfileHeader } from "@/components/profile-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
-import {
-  BottomTabInset,
-  MaxContentWidth,
-  Spacing,
-} from "@/constants/theme";
+import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { useHabitsStore } from "@/store/habits.store";
+import { SymbolView } from "expo-symbols";
+import { useEffect, useRef } from "react";
+import { FlatList, Platform, StyleSheet, View } from "react-native";
+import { Confetti, type ConfettiMethods } from "react-native-fast-confetti";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const HomeScreen = () => {
   const name = "Ulternae";
@@ -27,6 +24,27 @@ const HomeScreen = () => {
 
   const insets = useSafeAreaInsets();
   const habits = useHabitsStore((state) => state.habits);
+  const confettiRef = useRef<ConfettiMethods>(null);
+  const hasUserInteractedRef = useRef(false);
+
+  const allHabitsCompleted =
+    habits.length > 0 && habits.every((habit) => habit.isCompleted === true);
+  const wasAllHabitsCompletedRef = useRef(allHabitsCompleted);
+
+  useEffect(() => {
+    if (
+      hasUserInteractedRef.current &&
+      allHabitsCompleted &&
+      !wasAllHabitsCompletedRef.current
+    ) {
+      requestAnimationFrame(() => confettiRef.current?.restart());
+    }
+    wasAllHabitsCompletedRef.current = allHabitsCompleted;
+  }, [allHabitsCompleted]);
+
+  const handleHabitToggle = () => {
+    hasUserInteractedRef.current = true;
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -57,7 +75,9 @@ const HomeScreen = () => {
           <FlatList
             data={habits}
             keyExtractor={(habit) => String(habit.id)}
-            renderItem={({ item: habit }) => <HabitCard habit={habit} />}
+            renderItem={({ item: habit }) => (
+              <HabitCard habit={habit} onToggle={handleHabitToggle} />
+            )}
             style={styles.habitsScroll}
             contentContainerStyle={[
               styles.habitsContent,
@@ -92,6 +112,23 @@ const HomeScreen = () => {
         {Platform.OS === "web" && <WebBadge />}
         <HabitDate />
       </SafeAreaView>
+
+      {Platform.OS !== "web" && (
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+          <Confetti
+            ref={confettiRef}
+            autoplay={false}
+            count={160}
+            fadeOutOnEnd
+            reduceMotion="system"
+            colors={[theme.primary, theme.success, theme.warning, theme.tint]}
+            containerStyle={StyleSheet.absoluteFill}
+          >
+            <Confetti.Flake size={8} radius={3} />
+            <Confetti.Flake width={8} height={14} radius={4} />
+          </Confetti>
+        </View>
+      )}
     </ThemedView>
   );
 };
