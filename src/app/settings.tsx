@@ -1,15 +1,10 @@
 import { SymbolView } from "expo-symbols";
 import type { ComponentProps } from "react";
-import {
-  Alert,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Avatar } from "@/components/avatar";
+import { ProfileSaveButton } from "@/components/profile-save-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
@@ -25,12 +20,7 @@ type SettingRowProps = {
   value: string;
 };
 
-function SettingRow({
-  icon,
-  label,
-  description,
-  value,
-}: SettingRowProps) {
+function SettingRow({ icon, label, description, value }: SettingRowProps) {
   const theme = useTheme();
 
   return (
@@ -40,12 +30,7 @@ function SettingRow({
       accessibilityState={{ disabled: true }}
       style={[styles.settingRow, { borderBottomColor: theme.border }]}
     >
-      <View
-        style={[
-          styles.settingIcon,
-          { backgroundColor: theme.backgroundSelected },
-        ]}
-      >
+      <View style={[styles.settingIcon, { backgroundColor: theme.backgroundSelected }]}>
         <SymbolView name={icon} tintColor={theme.primary} size={19} />
       </View>
 
@@ -61,7 +46,11 @@ function SettingRow({
           {value}
         </ThemedText>
         <SymbolView
-          name={{ ios: "chevron.right", android: "chevron_right", web: "chevron_right" }}
+          name={{
+            ios: "chevron.right",
+            android: "chevron_right",
+            web: "chevron_right",
+          }}
           tintColor={theme.muted}
           size={16}
         />
@@ -94,155 +83,134 @@ const SettingsScreen = () => {
   const handleClearHabits = () => {
     if (habits.length === 0) return;
 
-    Alert.alert(
-      "Clear all habits?",
-      "This will permanently remove all of your saved habits.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear all",
-          style: "destructive",
-          onPress: removeAllHabits,
-        },
-      ],
-    );
+    Alert.alert("Clear all habits?", "This will permanently remove all of your saved habits.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Clear all",
+        style: "destructive",
+        onPress: removeAllHabits,
+      },
+    ]);
   };
 
   return (
     <ThemedView style={styles.screen}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, contentPlatformStyle]}
-      >
-          <View style={styles.header}>
-            <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
-              <ThemedText style={[styles.avatarText, { color: theme.onPrimary }]}>
-                U
-              </ThemedText>
-            </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, contentPlatformStyle]}>
+        <ThemedText type="smallBold" themeColor="muted">
+          SETTINGS
+        </ThemedText>
 
-            <View style={styles.headerCopy}>
-              <ThemedText type="subtitle">Settings</ThemedText>
-              <ThemedText themeColor="textSecondary">
-                Personalize your habits experience.
-              </ThemedText>
-            </View>
-          </View>
+        <Avatar />
 
-          <ThemedView
-            type="backgroundElement"
-            style={[styles.profileCard, { borderColor: theme.border }]}
-          >
-            <View style={styles.profileCopy}>
-              <ThemedText type="smallBold" themeColor="muted">
-                YOUR PROFILE
-              </ThemedText>
-              <ThemedText style={styles.profileName}>Ulternae</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                Developer · {habits.length} active habit
-                {habits.length === 1 ? "" : "s"}
-              </ThemedText>
-            </View>
-
-            <ThemedText
-              type="smallBold"
-              style={[styles.previewBadge, { color: theme.primary }]}
-            >
-              PREVIEW
-            </ThemedText>
-          </ThemedView>
-
-          <View style={styles.section}>
+        <ThemedView type="backgroundElement" style={[styles.profileCard, { borderColor: theme.border }]}>
+          <View style={styles.profileCopy}>
             <ThemedText type="smallBold" themeColor="muted">
-              PREFERENCES
+              YOUR PROFILE
             </ThemedText>
-            <ThemedView
-              type="backgroundElement"
-              style={[styles.settingsGroup, { borderColor: theme.border }]}
-            >
-              <SettingRow
-                icon={{ ios: "paintbrush", android: "palette", web: "palette" }}
-                label="Appearance"
-                description="Choose light, dark, or system theme"
-                value="System"
-              />
-              <SettingRow
-                icon={{ ios: "bell", android: "notifications", web: "notifications" }}
-                label="Notifications"
-                description="Plan reminders for your daily habits"
-                value="Soon"
-              />
-              <SettingRow
-                icon={{ ios: "calendar", android: "calendar_month", web: "calendar_month" }}
-                label="Week starts on"
-                description="Set the first day of your habit week"
-                value="Monday"
-              />
-            </ThemedView>
+            <ThemedText style={styles.profileName}>Ulternae</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Developer · {habits.length} active habit
+              {habits.length === 1 ? "" : "s"}
+            </ThemedText>
           </View>
 
-          <View style={styles.section}>
-            <ThemedText type="smallBold" themeColor="muted">
-              APP
-            </ThemedText>
-            <ThemedView
-              type="backgroundElement"
-              style={[styles.settingsGroup, { borderColor: theme.border }]}
-            >
-              <SettingRow
-                icon={{ ios: "lock.shield", android: "lock", web: "lock" }}
-                label="Data & privacy"
-                description="Your habits are stored locally for now"
-                value="Local"
-              />
-              <SettingRow
-                icon={{ ios: "info.circle", android: "info", web: "info" }}
-                label="About Habits"
-                description="Version 1.0 · More details coming soon"
-                value="Soon"
-              />
-            </ThemedView>
-          </View>
-
-          <View style={styles.section}>
-            <ThemedText type="smallBold" themeColor="muted">
-              DATA
-            </ThemedText>
-            <ThemedView
-              type="backgroundElement"
-              style={[styles.dangerCard, { borderColor: theme.border }]}
-            >
-              <View style={styles.dangerCopy}>
-                <ThemedText style={styles.settingLabel}>Clear all habits</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  Remove every habit saved in this app.
-                </ThemedText>
-              </View>
-
-              <Pressable
-                onPress={handleClearHabits}
-                disabled={habits.length === 0}
-                accessibilityRole="button"
-                accessibilityLabel="Clear all habits"
-                accessibilityState={{ disabled: habits.length === 0 }}
-                style={({ pressed }) => [
-                  styles.clearButton,
-                  { backgroundColor: theme.danger },
-                  habits.length === 0 && styles.clearButtonDisabled,
-                  pressed && styles.clearButtonPressed,
-                ]}
-              >
-                <ThemedText type="smallBold" style={{ color: "#FFFFFF" }}>
-                  Clear
-                </ThemedText>
-              </Pressable>
-            </ThemedView>
-          </View>
-
-          <ThemedText type="small" themeColor="muted" style={styles.footerNote}>
-            Most settings are a visual preview. More controls will be enabled in a future update.
+          <ThemedText type="smallBold" style={[styles.previewBadge, { color: theme.primary }]}>
+            PREVIEW
           </ThemedText>
+        </ThemedView>
+
+        <View style={styles.section}>
+          <ThemedText type="smallBold" themeColor="muted">
+            PREFERENCES
+          </ThemedText>
+          <ThemedView type="backgroundElement" style={[styles.settingsGroup, { borderColor: theme.border }]}>
+            <SettingRow
+              icon={{ ios: "paintbrush", android: "palette", web: "palette" }}
+              label="Appearance"
+              description="Choose light, dark, or system theme"
+              value="System"
+            />
+            <SettingRow
+              icon={{
+                ios: "bell",
+                android: "notifications",
+                web: "notifications",
+              }}
+              label="Notifications"
+              description="Plan reminders for your daily habits"
+              value="Soon"
+            />
+            <SettingRow
+              icon={{
+                ios: "calendar",
+                android: "calendar_month",
+                web: "calendar_month",
+              }}
+              label="Week starts on"
+              description="Set the first day of your habit week"
+              value="Monday"
+            />
+          </ThemedView>
+        </View>
+
+        <View style={styles.section}>
+          <ThemedText type="smallBold" themeColor="muted">
+            APP
+          </ThemedText>
+          <ThemedView type="backgroundElement" style={[styles.settingsGroup, { borderColor: theme.border }]}>
+            <SettingRow
+              icon={{ ios: "lock.shield", android: "lock", web: "lock" }}
+              label="Data & privacy"
+              description="Your habits are stored locally for now"
+              value="Local"
+            />
+            <SettingRow
+              icon={{ ios: "info.circle", android: "info", web: "info" }}
+              label="About Habits"
+              description="Version 1.0 · More details coming soon"
+              value="Soon"
+            />
+          </ThemedView>
+        </View>
+
+        <View style={styles.section}>
+          <ThemedText type="smallBold" themeColor="muted">
+            DATA
+          </ThemedText>
+          <ThemedView type="backgroundElement" style={[styles.dangerCard, { borderColor: theme.border }]}>
+            <View style={styles.dangerCopy}>
+              <ThemedText style={styles.settingLabel}>Clear all habits</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                Remove every habit saved in this app.
+              </ThemedText>
+            </View>
+
+            <Pressable
+              onPress={handleClearHabits}
+              disabled={habits.length === 0}
+              accessibilityRole="button"
+              accessibilityLabel="Clear all habits"
+              accessibilityState={{ disabled: habits.length === 0 }}
+              style={({ pressed }) => [
+                styles.clearButton,
+                { backgroundColor: theme.danger },
+                habits.length === 0 && styles.clearButtonDisabled,
+                pressed && styles.clearButtonPressed,
+              ]}
+            >
+              <ThemedText type="smallBold" style={{ color: "#FFFFFF" }}>
+                Clear
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
+        </View>
+
+        <ThemedText type="small" themeColor="muted" style={styles.footerNote}>
+          Most settings are a visual preview. More controls will be enabled in a future update.
+        </ThemedText>
       </ScrollView>
+
+      <ProfileSaveButton />
     </ThemedView>
   );
 };
