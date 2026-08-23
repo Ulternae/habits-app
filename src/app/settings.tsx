@@ -68,7 +68,7 @@ const SettingsScreen = () => {
   const contentPlatformStyle = Platform.select({
     android: {
       paddingTop: safeAreaInsets.top + Spacing.five,
-      paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.five,
+      paddingBottom: safeAreaInsets.bottom,
     },
     ios: {
       paddingTop: safeAreaInsets.top + Spacing.five,
@@ -104,9 +104,6 @@ const SettingsScreen = () => {
 
         <ThemedView type="backgroundElement" style={[styles.profileCard, { borderColor: theme.border }]}>
           <View style={styles.profileCopy}>
-            <ThemedText type="smallBold" themeColor="muted">
-              YOUR PROFILE
-            </ThemedText>
             <ThemedText style={styles.profileName}>Ulternae</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
               Developer · {habits.length} active habit
@@ -120,9 +117,6 @@ const SettingsScreen = () => {
         </ThemedView>
 
         <View style={styles.section}>
-          <ThemedText type="smallBold" themeColor="muted">
-            PREFERENCES
-          </ThemedText>
           <ThemedView type="backgroundElement" style={[styles.settingsGroup, { borderColor: theme.border }]}>
             <SettingRow
               icon={{ ios: "paintbrush", android: "palette", web: "palette" }}
@@ -154,9 +148,6 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="smallBold" themeColor="muted">
-            APP
-          </ThemedText>
           <ThemedView type="backgroundElement" style={[styles.settingsGroup, { borderColor: theme.border }]}>
             <SettingRow
               icon={{ ios: "lock.shield", android: "lock", web: "lock" }}
@@ -174,9 +165,6 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <ThemedText type="smallBold" themeColor="muted">
-            DATA
-          </ThemedText>
           <ThemedView type="backgroundElement" style={[styles.dangerCard, { borderColor: theme.border }]}>
             <View style={styles.dangerCopy}>
               <ThemedText style={styles.settingLabel}>Clear all habits</ThemedText>
@@ -204,10 +192,6 @@ const SettingsScreen = () => {
             </Pressable>
           </ThemedView>
         </View>
-
-        <ThemedText type="small" themeColor="muted" style={styles.footerNote}>
-          Most settings are a visual preview. More controls will be enabled in a future update.
-        </ThemedText>
       </ScrollView>
 
       <ProfileSaveButton />
@@ -259,7 +243,6 @@ const styles = StyleSheet.create({
   },
   profileCopy: {
     flex: 1,
-    gap: Spacing.one,
   },
   profileName: {
     fontSize: 20,

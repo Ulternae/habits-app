@@ -64,7 +64,7 @@ export { Avatar };
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    paddingVertical: Spacing.six,
+    paddingVertical: Spacing.five,
   },
 
   imageContainer: {
